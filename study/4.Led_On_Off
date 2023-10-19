@@ -1,0 +1,20 @@
+int arr[8];
+
+void setup() {
+  // put your setup code here, to run once:
+  for (int i = 0; i<sizeof(arr)/sizeof(int); i++) { //아두이노에서는 int가 2바이트)
+    arr[i] = i+2;
+  }
+  for (int i = 0; i<sizeof(arr)/sizeof(int); i++) {
+    pinMode(arr[i],OUTPUT);
+  }
+}
+
+void loop() {
+  for (int i = 0; i<sizeof(arr)/sizeof(int); i++) {
+    digitalWrite(arr[i],HIGH);
+    delay(10);
+    digitalWrite(arr[i],LOW);
+    delay(10);
+  }
+}
