@@ -1,0 +1,21 @@
+const int led = 13;
+void setup(){
+  Serial.begin(115200);
+  pinMode(led,OUTPUT);
+}
+void loop() {
+  if (Serial.available()) {
+    char userInput = Serial.read(); //문자를 입력받는 함수
+    switch(userInput) {
+      case 'n' : {
+        digitalWrite(led,HIGH);
+        break;
+      } case 'f': {
+        digitalWrite(led,LOW);
+        break;
+      } default : {
+        break;
+      }
+    }
+  }
+}
