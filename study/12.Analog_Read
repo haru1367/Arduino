@@ -1,0 +1,23 @@
+#define V0 5.0
+#define unit V0/1024
+#define R1 10000.0
+const int led_0 = 3;
+const int analogPin = A0;
+
+
+
+void setup() {
+  // put your setup code here, to run once: 
+  Serial.begin(115200);
+  pinMode(led_0,OUTPUT);
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  int analogValue = analogRead(analogPin);
+  float V2 = analogValue * unit;
+  Serial.println(analogValue);
+  analogWrite(led_0,map(analogValue,170,1023,0,255));
+  
+}
