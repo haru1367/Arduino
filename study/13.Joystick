@@ -1,0 +1,36 @@
+#define V0 5.0
+#define unit V0/1024
+#define R1 10000.0
+
+const int Xin = A0;
+const int Yin = A1;
+const int KEYin = 3;
+
+
+
+void setup() {
+  // put your setup code here, to run once: 
+  Serial.begin(115200);
+  pinMode(KEYin,INPUT_PULLUP); // 칩 내부에 있는 pull up 저항을 사용
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  int Xval = analogRead(Xin);
+  int Yval = analogRead(Yin);
+  int buttonval = digitalRead(KEYin);
+  Serial.print("x = ");
+  Serial.print(Xval);
+  Serial.print(", ");
+  Serial.print("y = ");
+  Serial.print(Yval);
+  Serial.print(", ");
+  Serial.print(" Button is ");
+  if (buttonval == HIGH) {
+    Serial.println("not pressed");
+  } else {
+    Serial.println("pressed");
+  }
+  delay(300);
+}
