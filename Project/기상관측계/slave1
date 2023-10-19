@@ -1,0 +1,62 @@
+#include <Wire.h>
+#include <DHT.h>
+
+char receivedData[32];                               //master보드로 부터 수신한 명령을 저장할 배열
+char tempData[32];                                   //측정한 온도데이터를 저장할 배열 -> master보드로 보낼 용도
+char humidData[32];                                  //측정한 습도데이터를 저장할 배열 -> master보드로 보낼 용도
+const int temp = 2;                                  //온도측정센서와 연결할 디지털 핀
+DHT dht(2,DHT11);                                    //2번핀을 DHT11센서와 연결
+const int BUZZER = 10;                               //부저의 연결 핀은 10번
+
+bool sendData = false;                               //데이터 전송모드의 초기 설정은 false;
+void setup() {
+  Wire.begin(5);                                     //온도,습도를 측정하는 slave보드의 주소값을 5로 설정
+  Wire.onReceive(receiveEvent);                      //master보드로 부터 명령을 수신하는 함수
+  Serial.begin(9600);                                //시리얼 통신
+  dht.begin();                                       //센서 동작 시작
+  pinMode(BUZZER,OUTPUT);                            //부저의 pinmode를 OUTPUT으로 설정
+}
+
+void loop() {
+  if (sendData) {                                    //데이터를 송신모드
+    if (strcmp(receivedData,"temp") == 0) {          //master보드로 부터 전달받은 명령이 온도 측정일 경우
+      int temperature = dht.readTemperature();       //온도 측정한 값을 int형으로 저장
+      if (temperature >= 33 || temperature<=-12) {   //온도가 33도이상이거나 영하12도 이하일 시 경고용으로 부저작동
+        tone(BUZZER,600,1000);                       //부저의 음 높낮이는 600, 지속시간은 1초로 설정
+      }
+      Serial.print(" ");
+      Serial.println(temperature);
+      Wire.beginTransmission(9);                      //측정한 데이터를 master보드로 보내기위해 master보드의 주소인 9로 연결
+      itoa(temperature,tempData,10);                  //측정값을 10진수형태의 문자열로 변환해 tempData배열에 저장
+      Wire.write(tempData);                           //변환한 문자열을 master보드로 전송
+      delay(80);                                      //통신얽힘 방지를 위한 delay부여
+      Wire.endTransmission();                         //전송 종료
+      sendData = false;                               //데이터를 전송했으므로 전송모드를 false로 전환
+    } 
+    else {                                            //master보드로 부터 전달받은 명령이 습도 측정일 경우
+      int humidity = dht.readHumidity();              //습도 측정한 값을 int형으로 저장
+      Serial.print(" ");
+      Serial.println(humidity);
+      Wire.beginTransmission(9);                      //측정한 데이터를 master보드로 보내기 위해 master보드의 주소인 9로 연결
+      itoa(humidity,humidData,10);                    //측정값을 10진수형태의 문자열로 변환해 tempData배열에 저장
+      Wire.write(humidData);                          //변환한 문자열을 master보드로 전송
+      delay(80);                                      //통신얽힘 방지를 위한 delay부여
+      Wire.endTransmission();                         //전송 종료
+      sendData = false;                               //데이터를 전송했으므로 전송모드를 false로 전환
+    }
+  }
+}
+
+void receiveEvent(int byteCount) {                    //master보드로 부터 명령을 받는 함수
+  if (Wire.available() > 0) {
+    int i = 0;
+    while (Wire.available()) {                        //데이터를 모두 받을때 까지 실행
+      receivedData[i] = Wire.read();                  //수신 데이터를 배열에 저장
+      i++;
+    }
+    receivedData[i] = '\0';                           //문자열 배열 마지막에 종료를 알리는 '\0'문자를 추가
+    Serial.print("Received from Master: "); 
+    Serial.println(receivedData);
+  }
+  sendData = true;                                    //다시 데이터를 요청받을 수 있기 때문에 전송모드를 true로 전환
+}
