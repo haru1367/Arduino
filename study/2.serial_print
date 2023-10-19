@@ -1,0 +1,16 @@
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200); // 통신속도 조절, serial을 쓰기위해서 반드시 써야한다.
+  Serial.println(78);  //serial monitor에 출력
+  Serial.println(78,DEC);   // 10진법
+  Serial.println(78,HEX);   // 16진법
+  Serial.println(78,BIN);   // 2진법
+  Serial.println(1.23456);  //소수점아래 2자리까지 출력
+  Serial.println(1.23456,1);  // 소수점 아래 1자리 까지 출력
+  Serial.println('N');  // 문자출력
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
