@@ -1,0 +1,43 @@
+const int SW_0 = 2;
+const int led_0 = 13;
+const int SW_1 = 3;
+const int led_1 = 12;
+
+int led_flag_0 = 0; // 0 : OFF , 1 : ON
+int led_flag_1 = 0;
+//사용자 함수
+void SW0_Pressed(void) {
+  if (led_flag_0 == 0) {
+    
+  } else {
+    digitalWrite(led_0,LOW);
+    led_flag_0 = 0;
+  }
+}
+
+void SW1_Pressed(void) {
+  if (led_flag_1 == 0) {
+    digitalWrite(led_1,HIGH);
+    led_flag_1 =1;
+  } else {
+    digitalWrite(led_1,LOW);
+    led_flag_1 = 0;
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(SW_0,INPUT);
+  pinMode(led_0,OUTPUT);
+  digitalWrite(led_0,LOW);
+  pinMode(SW_1,INPUT);
+  pinMode(led_1,OUTPUT);
+  digitalWrite(led_1,LOW);
+
+  attachInterrupt(digitalPinToInterrupt(SW_0),SW0_Pressed,RISING); //내부 칩에서 자체적으로 신호가 0에서 1로 바뀌면 SW0_Pressed 함수 실행
+  attachInterrupt(digitalPinToInterrupt(SW_1),SW1_Pressed,RISING);
+}
+
+void loop() {
+ 
+}
