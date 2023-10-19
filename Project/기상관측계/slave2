@@ -1,0 +1,75 @@
+#include <Wire.h>
+#include <math.h>
+
+int UVOUT = A0;                                                        //A0 핀에 UV 센서 연결
+int REF_3V3 = A1;                                                      //A1 핀에 3.3V 레퍼런스 연결
+bool sendData = false;                                                 //데이터 전송모드 초기값 false로 설정
+char receivedData[32];                                                 //master보드로부터 수신한 데이터를 저장하는 문자 배열
+char UVData[32];                                                       //UV 센서 데이터를 저장하는 문자 배열 ->master보드로 보내기 위한 문자열
+const int BUZZER = 10;                                                 // 부저를 10번핀에 연결
+
+void setup() {
+  Serial.begin(9600);                                                  //시리얼 통신
+  Wire.begin(6);                                                       //자외선을 측정하는 slave보드의 주소값을 6으로 설정
+  Wire.onReceive(receiveEvent);                                        //master보드로 부터 데이터를 수신하는 함수
+  pinMode(UVOUT, INPUT);                                               //UV 센서를 INPUT 모드로 설정
+  pinMode(REF_3V3, INPUT);                                             //3.3V 레퍼런스 핀을 INPUT 모드로 설정
+  pinMode(BUZZER, OUTPUT);                                             //부저를 OUTPUT 모드로 설정
+  Serial.println("MP8511 example"); 
+}
+
+void loop() {
+  if (sendData) {                                                      //데이터 전송모드
+    int uvLevel = averageAnalogRead(UVOUT);                            //UV 센서에서 평균 아날로그 값을 읽음
+    int refLevel = averageAnalogRead(REF_3V3);                         //3.3V 레퍼런스에서 평균 아날로그 값을 읽음
+    float outputVoltage = 3.3 / refLevel * uvLevel;                    //UV 강도에 해당하는 출력 전압 계산
+    float uvIntensity = mapfloat(outputVoltage, 0.99, 2.9, 0.0, 15.0); //출력 전압을 UV 강도로 매핑
+    Wire.beginTransmission(9);                                         //측정한 데이터를 master보드의 주소값인 9로 전송 시작
+    int uvint = (int)uvIntensity;                                      //UV 강도를 정수로 변환
+    if (uvint >= 6) {                                                  //UV 강도가 6 이상인 경우 경고음 출력
+      tone(BUZZER, 600, 1000);                                         //경고음의 높낮이는 600으로 1초동안 출력
+    }
+    Serial.print(" UV Intensity (mW/cm^2): ");                         
+    Serial.println(uvIntensity);
+    Serial.println(uvint);    
+    itoa(uvint, UVData, 10);                                           //측정한 값을 master보드로 전송하기위해 문자열로 변환하고 UVData배열에 저장
+    Wire.write(UVData);                                                //master보드로 문자열 배열 전송
+    delay(100);                                                        //통신 얽힘 방지를 위해 delay 부여
+    Wire.endTransmission();                                            //데이터 전송 종료
+    sendData = false;                                                  //데이터를 보냈으므로 전송모드 false로 전환
+    Serial.println();    
+  }
+}
+
+// 주어진 핀에서 여러 읽기를 평균내는 함수
+// 평균값을 반환
+int averageAnalogRead(int pinToRead) {
+  byte numberOfReadings = 8;                                           //읽을 횟수
+  unsigned int runningValue = 0;                                       //읽은 값들의 합을 저장할 변수
+
+  for (int x = 0; x < numberOfReadings; x++)
+    runningValue += analogRead(pinToRead);                             //주어진 핀에서 아날로그 값을 읽어 합산
+
+  runningValue /= numberOfReadings;                                    //합산 값을 읽은 횟수로 나누어 평균을 계산
+
+  return (runningValue);                                               //평균값 반환
+}
+
+// float 값에 대한 매핑 함수
+float mapfloat(float x, float in_min, float in_max, float out_min, float out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;  //매핑 계산
+}
+
+void receiveEvent(int byteCount) {                                     //master보드로 부터 명령을 받는 함수
+  if (Wire.available() > 0) {
+    int i = 0;
+    while (Wire.available()) {                                         //데이터를 모두 받을 때 까지 실행
+      receivedData[i] = Wire.read();                                   //데이터를 받아 receivedData문자열 배열에 저장
+      i++;
+    }
+    receivedData[i] = '\0';                                            //문자열 종료 문자 추가
+    Serial.print("Received from Master : ");
+    Serial.println(receivedData);
+  }
+  sendData = true;                                                     //다음 데이터 요청이 있을시를 대비해 전송모드를 true로 전환
+}
