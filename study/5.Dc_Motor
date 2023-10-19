@@ -1,0 +1,43 @@
+#define STOP 0
+#define CW 1
+#define CCW 2
+const int DC_P = 5;
+const int DC_N = 4;
+const int DC_E = 3;
+//사용자 함수 선언
+void DC_MOTOR_cnt1(int mode, int time);
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(DC_P,OUTPUT);
+  pinMode(DC_N,OUTPUT);
+  pinMode(DC_E,OUTPUT);
+  
+  DC_MOTOR_cnt1(CW,1000); // 시계방향으로 1초동안 회전
+  DC_MOTOR_cnt1(STOP,3000); // 3초동안 정지
+  DC_MOTOR_cnt1(CCW,1000);  // 반시계방향으로 1초동안 회전
+  DC_MOTOR_cnt1(STOP,3000); 
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
+
+//사용자 함수 구현
+void DC_MOTOR_cnt1(int mode, int time) {
+  if (mode == STOP) {
+    digitalWrite(DC_E,LOW);
+    digitalWrite(DC_P,LOW);
+    digitalWrite(DC_N,LOW);
+  } else if (mode == CW) {
+    digitalWrite(DC_E,HIGH);
+    digitalWrite(DC_P,HIGH);
+    digitalWrite(DC_N,LOW);
+  } else {
+    digitalWrite(DC_E,HIGH);
+    digitalWrite(DC_P,LOW);
+    digitalWrite(DC_N,HIGH);
+  }
+  delay(time);
+}
