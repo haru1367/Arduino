@@ -1,0 +1,30 @@
+#include <TimerOne.h>
+
+const int LED = 10; // timer1 을 쓰기위해서는 9,10번핀에 연결
+int ledflag = 0;
+void timerIsr(void) {
+  if (ledflag == 0) {
+    digitalWrite(LED,HIGH);
+    ledflag = 1;
+  } else {
+    digitalWrite(LED,LOW);
+    ledflag = 0;
+  }
+  
+}
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(LED,OUTPUT);
+  Timer1.initialize(1000000);
+  //Timer1.pwm(LED,0); //timer1을 이용하여 pwm기능을 사용하는 경우 설정
+  Timer1.attachInterrupt(timerIsr); // Timer1 인터럽트 기능을 사용하는 경우 설정 (주기마다 원하는 기능을 실행하는 함수)
+  //pwm기능과 attachInterrupt 기능을 같이 사용하면 안된다.
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  for (int i = 0; i<1024; i++) {
+    Timer1.setPwmDuty(LED,i);
+    delay(i);
+  }
+}
