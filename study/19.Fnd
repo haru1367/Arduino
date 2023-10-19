@@ -1,0 +1,48 @@
+const int fnd_data[7] = {2,3,4,5,6,7,8};
+const unsigned int num[10][7] = {{1,1,1,1,1,1,0},
+    {0,1,1,0,0,0,0},
+    {1,1,0,1,1,0,1},
+    {1,1,1,1,0,0,1},
+    {0,1,1,0,0,1,1},
+    {1,0,1,1,0,1,1},
+    {1,0,1,1,1,1,1},
+    {1,1,1,0,0,0,0},
+    {1,1,1,1,1,1,1},
+    {1,1,1,1,0,1,1}};
+
+
+void displayinit(int *pin) {
+   for (int i = 0; i<7; i++) {
+    pinMode(*(pin+i),OUTPUT);
+  }
+}
+void display_set(int *pin) {
+  for (int i = 0; i<7; i++) {
+    digitalWrite(pin[i],HIGH);
+  }
+}
+void display_clear(int *pin) {
+  for (int i = 0; i<7; i++) {
+    digitalWrite(pin[i],LOW);
+  }
+}
+void display_number(int n) {
+  for (int i = 0; i<7; i++) {
+    digitalWrite(fnd_data[i],num[n][i]);
+  }
+}
+
+void setup() {
+  displayinit(fnd_data);
+  display_clear(fnd_data);
+  Serial.begin(115200);
+
+}
+void loop() {
+  if (Serial.available()) {
+    char number = Serial.read();
+    if (number >= '0' && number<= '9') {
+      display_number(number-48);
+    }
+  }
+}
