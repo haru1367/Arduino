@@ -1,0 +1,24 @@
+const int LED = 13; // 첫번째 LED 13번 핀에 연결
+const int LED2 = 12;  // 두번째 LED 12번 핀에 연결
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(LED,OUTPUT);   //첫번째 LED 출력모드
+  pinMode(LED2,OUTPUT);  // 두번째 LED 출력모드
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  for (int i = 1; i<=500; i++) {
+    digitalWrite(LED,LOW);    // LED 끄기
+    delayMicroseconds(1000-i);   // LED duty비 조절
+    digitalWrite(LED,HIGH);  // LED 켜기
+    delayMicroseconds(i);   // LED duty비 조절
+  }
+  for (int i = 1; i<=500; i++) {
+    digitalWrite(LED2,LOW);
+    delayMicroseconds(1000-i);
+    digitalWrite(LED2,HIGH);
+    delayMicroseconds(i);
+  }
+}
