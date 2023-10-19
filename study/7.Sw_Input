@@ -1,0 +1,28 @@
+const int SW_0 = 2; //스위치를 연결하는 핀은 2번,3번만 가능하다.
+const int led_0 = 12;
+
+int led_flag = 0; // 0 : OFF , 1 : ON
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+  pinMode(SW_0,INPUT); // 스위치 버튼은 사용자가 입력하는 방식이기에 input을 쓴다.
+  pinMode(led_0,OUTPUT);
+  digitalWrite(led_0,LOW);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  int digitalValue = digitalRead(SW_0);
+  
+  if (digitalValue == HIGH) {
+    if (led_flag==0) {
+      digitalWrite(led_0,HIGH);
+      led_flag = 1;
+    } else {
+      digitalWrite(led_0,LOW);
+      led_flag = 0;
+    }
+    delay(300);
+  }
+
+}
